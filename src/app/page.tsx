@@ -43,7 +43,7 @@ export default function Home() {
   
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
-    localStorage.setItem("isDarkMode", isDarkMode.toString()); // Save user preference
+    localStorage.setItem("isDarkMode", isDarkMode.toString()); 
   }, [isDarkMode]);
   
 
@@ -324,4 +324,3 @@ export default function Home() {
     </div>
   );
 }
-
