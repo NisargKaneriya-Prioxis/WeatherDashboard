@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -30,15 +32,20 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    setIsDarkMode(prefersDark);
+    const savedMode = localStorage.getItem("isDarkMode");
+    if (savedMode !== null) {
+      setIsDarkMode(savedMode === "true");
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDarkMode(prefersDark);
+    }
   }, []);
-
+  
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
+    localStorage.setItem("isDarkMode", isDarkMode.toString()); // Save user preference
   }, [isDarkMode]);
+  
 
   useEffect(() => {
     const storedFavorites = localStorage.getItem("favoriteCities");
@@ -59,7 +66,6 @@ export default function Home() {
       });
     }
   }, []);
-
   const fetchWeatherData = async (city: string) => {
     try {
       setLoading(true);
@@ -68,16 +74,16 @@ export default function Home() {
       );
       if (!currentRes.ok) throw new Error("City not found");
       const currentData = await currentRes.json();
-
+  
       const forecastRes = await fetch(
         `${base_url}/forecast?q=${city}&appid=${api_key}&units=metric`
       );
       const forecastData = await forecastRes.json();
-
+  
       const dailyForecast: ForecastItem[] = [];
       const addedDates = new Set();
       const today = new Date().toLocaleDateString();
-
+  
       forecastData.list.forEach((item: any) => {
         const date = new Date(item.dt_txt).toLocaleDateString();
         if (
@@ -94,7 +100,7 @@ export default function Home() {
           addedDates.add(date);
         }
       });
-
+  
       const newCity: WeatherCity = {
         city: currentData.name,
         temperature: Math.round(currentData.main.temp),
@@ -103,18 +109,20 @@ export default function Home() {
         favorite: false,
         forecast: dailyForecast,
       };
-
+  
       setCities((prev) => {
         if (prev.some((c) => c.city === newCity.city)) return prev;
         return [...prev, newCity];
       });
       setSearchTerm("");
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      console.error(error);
+      alert("City not found. Please try again."); 
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -316,3 +324,4 @@ export default function Home() {
     </div>
   );
 }
+
