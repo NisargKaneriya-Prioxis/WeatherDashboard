@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 
-const api_key = "2d67321f21d17146cae9d7ffc39637bd";
+
+const api_key = process.env.NEXT_PUBLIC_API_KEY;
 const base_url = "https://api.openweathermap.org/data/2.5";
 
 interface ForecastItem {
@@ -66,6 +67,7 @@ export default function Home() {
       });
     }
   }, []);
+  
   const fetchWeatherData = async (city: string) => {
     try {
       setLoading(true);
